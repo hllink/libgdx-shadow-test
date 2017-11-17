@@ -22,15 +22,18 @@ public class DepthMapShader extends BaseShader
         super.end();
     }
 
-    public DepthMapShader(final Renderable renderable, final ShaderProgram shaderProgramModelBorder)
-    {
-        this.renderable = renderable;
-        this.program = shaderProgramModelBorder;
-        register(Inputs.worldTrans, Setters.worldTrans);
-        register(Inputs.projViewTrans, Setters.projViewTrans);
-        register(Inputs.normalMatrix, Setters.normalMatrix);
+    public DepthMapShader(){
 
     }
+//    public DepthMapShader(final Renderable renderable, final ShaderProgram shaderProgramModelBorder)
+//    {
+//        this.renderable = renderable;
+//        this.program = shaderProgramModelBorder;
+//        register(Inputs.worldTrans, Setters.worldTrans);
+//        register(Inputs.projViewTrans, Setters.projViewTrans);
+//        register(Inputs.normalMatrix, Setters.normalMatrix);
+//
+//    }
 
     @Override
     public void begin(final Camera camera, final RenderContext context)

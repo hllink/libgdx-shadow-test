@@ -2,15 +2,15 @@ package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
-import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.utils.BaseShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.shadowtest.shader.DepthMapShader;
+import com.mygdx.shadowtest.shader.TestShaderProvider;
 
 public class ShadowTestGame extends ApplicationAdapter {
 
@@ -38,20 +39,19 @@ public class ShadowTestGame extends ApplicationAdapter {
     private GLProfiler profiler;
     private ShaderProgram shaderProgram;
 
+    private TestShaderProvider tsp;
+
     @Override
     public void create() {
         this.assets = new AssetManager();
 
         shaderProgram = setupShader("scene");
-        this.modelBatch = new ModelBatch();
-        this.depthModelBatch = new ModelBatch(new DefaultShaderProvider()
-        {
-            @Override
-            protected Shader createShader(final Renderable renderable)
-            {
-                return new DepthMapShader(renderable, shaderProgram);
-            }
-        });
+        tsp = new TestShaderProvider();
+        this.modelBatch = new ModelBatch(tsp);
+
+//        new DepthShaderProvider(Gdx.files.internal("shader/depthmap_v.glsl"), Gdx.files.internal("shader/depthmap_f.glsl"))
+//        new DepthShaderProvider()
+
         this.lstModelInstances = new Array<ModelInstance>();
 
         setupCamera();
@@ -145,9 +145,12 @@ public class ShadowTestGame extends ApplicationAdapter {
             Gdx.app.log("Assets", "Assets Loaded.");
         }
 
+        tsp.getShaderProgram().begin();
+        tsp.getShaderProgram().setUniformf("u_cameraFar", camera.far);
+        tsp.getShaderProgram().setUniformf("u_lightPosition", cameraLight.position);
+        tsp.getShaderProgram().end();
 
-
-        renderLight();
+        //renderLight();
         this.modelBatch.begin(this.camera);
         this.modelBatch.render(lstModelInstances);
         this.modelBatch.end();
