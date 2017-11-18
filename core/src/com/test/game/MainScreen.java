@@ -8,8 +8,12 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.UBJsonReader;
+import com.mygdx.shadowtest.DirectionalLight;
+import com.mygdx.shadowtest.MovingPointLight;
+import com.mygdx.shadowtest.PointLight;
 import com.mygdx.shadowtest.ShadowEngine;
 
 /**
@@ -38,6 +42,10 @@ public class MainScreen extends ApplicationAdapter {
         initCameras();
         this.shadowEngine =  new ShadowEngine();
         this.shadowEngine.init();
+        this.shadowEngine.addLight(new PointLight(this.shadowEngine, new Vector3(0f, 1f, 0f)));
+        this.shadowEngine.addLight(new PointLight(this.shadowEngine, new Vector3(-25.5f, 12.0f, -26f)));
+        this.shadowEngine.addLight(new DirectionalLight(this.shadowEngine, new Vector3(33, 10, 3), new Vector3(-10, 0, 0)));
+        this.shadowEngine.addLight(new MovingPointLight(this.shadowEngine, new Vector3(0f, 30.0f, 0f)));
         initWorld();
     }
 

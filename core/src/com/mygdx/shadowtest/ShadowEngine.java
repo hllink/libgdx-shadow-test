@@ -31,14 +31,15 @@ public class ShadowEngine {
 
 
 
+
     public void init() {
-        lights.add(new PointLight(this, new Vector3(0f, 1f, 0f)));
-        lights.add(new PointLight(this, new Vector3(-25.5f, 12.0f, -26f)));
-        lights.add(new DirectionalLight(this, new Vector3(33, 10, 3), new Vector3(-10, 0, 0)));
-        lights.add(new MovingPointLight(this, new Vector3(0f, 30.0f, 0f)));
         initShaders();
     }
 
+
+    public void addLight(Light light){
+        lights.add(light);
+    }
 
     /**
      * Load shader(s)
