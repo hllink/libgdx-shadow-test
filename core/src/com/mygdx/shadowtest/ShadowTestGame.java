@@ -2,15 +2,15 @@ package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.utils.BaseShaderProvider;
-import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
+import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -19,57 +19,91 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.mygdx.shadowtest.shader.DepthMapShader;
-import com.mygdx.shadowtest.shader.TestShaderProvider;
+import com.badlogic.gdx.utils.UBJsonReader;
+import com.mygdx.shadowtest.shader.*;
+
+import java.util.ArrayList;
 
 public class ShadowTestGame extends ApplicationAdapter {
 
     private AssetManager assets;
-
-    private PerspectiveCamera camera;
-    private PerspectiveCamera cameraLight;
     public FirstPersonCameraController camController;
 
-    private ModelBatch modelBatch;
-    private ModelBatch depthModelBatch;
 
     private Array<ModelInstance> lstModelInstances;
-
     private Boolean isWorldCreated = false;
     private GLProfiler profiler;
-    private ShaderProgram shaderProgram;
 
-    private TestShaderProvider tsp;
+    private ShaderProgram shaderProgram;
+    private ModelBatch modelBatch;
+    private PerspectiveCamera camera;
+    public static final int DEPTHMAPSIZE = 1024;
+
+    private ModelBatch modelBatchShadows;
+    private ShaderProgram shaderProgramShadows;
+    private FrameBuffer frameBufferShadows;
+
+    public ArrayList<Light> lights				= new ArrayList<Light>();
 
     @Override
     public void create() {
         this.assets = new AssetManager();
-
-        shaderProgram = setupShader("scene");
-        tsp = new TestShaderProvider();
-        this.modelBatch = new ModelBatch(tsp);
-
-//        new DepthShaderProvider(Gdx.files.internal("shader/depthmap_v.glsl"), Gdx.files.internal("shader/depthmap_f.glsl"))
-//        new DepthShaderProvider()
-
         this.lstModelInstances = new Array<ModelInstance>();
-
-        setupCamera();
-        setupLights();
         loadModels();
+
 
         this.profiler = new GLProfiler(Gdx.graphics);
         this.profiler.enable();
 
+
+        initCameras();
+        initShaders();
+
+        lights.add(new PointLight(this, new Vector3(0f, 13.8f, 32f)));
+        lights.add(new PointLight(this, new Vector3(-25.5f, 12.0f, -26f)));
+        lights.add(new DirectionalLight(this, new Vector3(33, 10, 3), new Vector3(-10, 0, 0)));
+        lights.add(new MovingPointLight(this, new Vector3(0f, 30.0f, 0f)));
+
     }
 
-    private void setupLights() {
-        cameraLight = new PerspectiveCamera(120f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cameraLight.near = 1f;
-        cameraLight.far = 100;
-        cameraLight.position.set(3, 3, 3);
-        cameraLight.lookAt(-1, 0, 0);
-        cameraLight.update();
+    public void initCameras()
+    {
+        camera = new PerspectiveCamera(60f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.near = 1f;
+        camera.far = 200;
+        camera.position.set(-31, 11, 27);
+        camera.lookAt(0, 11, 0);
+        camera.update();
+
+//		firstPersonCameraController = new IntFirstPersonCameraController(camera);
+//		firstPersonCameraController.setVelocity(30);
+//		Gdx.input.setInputProcessor(firstPersonCameraController);
+
+    }
+
+    public void initShaders()
+    {
+        shaderProgram = setupShader("scene");
+        modelBatch = new ModelBatch(new DefaultShaderProvider()
+        {
+            @Override
+            protected Shader createShader(final Renderable renderable)
+            {
+                return new SimpleTextureShader(renderable, shaderProgram);
+            }
+        });
+
+        final ShadowTestGame self = this;
+        shaderProgramShadows = setupShader("shadows");
+        modelBatchShadows = new ModelBatch(new DefaultShaderProvider()
+        {
+            @Override
+            protected Shader createShader(final Renderable renderable)
+            {
+                return new ShadowMapShader(self, renderable, shaderProgramShadows);
+            }
+        });
     }
 
     private void loadModels() {
@@ -80,25 +114,6 @@ public class ShadowTestGame extends ApplicationAdapter {
     public FrameBuffer frameBuffer;
     public static final int DEPTHMAPIZE = 1024;
 
-    public void renderLight() {
-        shaderProgram.begin();
-        shaderProgram.setUniformMatrix("u_lightTrans", cameraLight.combined);
-        shaderProgram.setUniformf("u_cameraFar", cameraLight.far);
-        shaderProgram.setUniformf("u_lightPosition", cameraLight.position);
-        shaderProgram.end();
-
-        if (frameBuffer == null) {
-            frameBuffer = FrameBuffer.createFrameBuffer(Pixmap.Format.RGBA8888, DEPTHMAPIZE, DEPTHMAPIZE, true);
-        }
-        frameBuffer.begin();
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        depthModelBatch.begin(cameraLight);
-        depthModelBatch.render(lstModelInstances);
-        depthModelBatch.end();
-
-        frameBuffer.end();
-    }
 
     private void createWorldSpace() {
         ModelInstance terrain = new ModelInstance(this.assets.get("model/terrain.g3db", Model.class));
@@ -118,20 +133,12 @@ public class ShadowTestGame extends ApplicationAdapter {
         this.isWorldCreated = true;
     }
 
-    private void setupCamera() {
-        this.camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        this.camera.position.set(10f, 2f, 10f);
-        this.camera.lookAt(0, 0, 0);
-        this.camera.near = 1f;
-        this.camera.far = 300f;
-        this.camera.update();
-        this.camController = new FirstPersonCameraController(this.camera);
-        Gdx.input.setInputProcessor(camController);
-    }
+
+    FPSLogger fpsLogger = new FPSLogger();
 
     @Override
     public void render() {
-        camController.update();
+//        camController.update();
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -145,19 +152,18 @@ public class ShadowTestGame extends ApplicationAdapter {
             Gdx.app.log("Assets", "Assets Loaded.");
         }
 
-        tsp.getShaderProgram().begin();
-        tsp.getShaderProgram().setUniformf("u_cameraFar", camera.far);
-        tsp.getShaderProgram().setUniformf("u_lightPosition", cameraLight.position);
-        tsp.getShaderProgram().end();
 
-        //renderLight();
-        this.modelBatch.begin(this.camera);
-        this.modelBatch.render(lstModelInstances);
-        this.modelBatch.end();
+        act(Gdx.graphics.getDeltaTime());
+        for (final Light light : lights)
+        {
+            for(ModelInstance instance:lstModelInstances) {
+                light.render(instance);
+            }
+        }
+        renderShadows();
+        renderScene();
 
-
-        this.camera.update();
-
+        fpsLogger.log();
         //Gdx.app.log("profiler vertex count",((Float)this.profiler.getVertexCount().total).toString());
         this.profiler.reset();
     }
@@ -180,5 +186,58 @@ public class ShadowTestGame extends ApplicationAdapter {
             Gdx.app.log("init", "Shader " + prefix + " compilled " + shaderProgram.getLog());
         }
         return shaderProgram;
+    }
+
+
+    public void renderScene()
+    {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0));
+        shaderProgram.begin();
+        final int textureNum = 4;
+        frameBufferShadows.getColorBufferTexture().bind(textureNum);
+        shaderProgram.setUniformi("u_shadows", textureNum);
+        shaderProgram.setUniformf("u_screenWidth", Gdx.graphics.getWidth());
+        shaderProgram.setUniformf("u_screenHeight", Gdx.graphics.getHeight());
+        shaderProgram.end();
+
+        modelBatch.begin(camera);
+        for(ModelInstance instance:lstModelInstances) {
+            modelBatch.render(instance);
+        }
+        modelBatch.end();
+
+    }
+
+    /**
+     * Render the scene shadow map
+     */
+    public void renderShadows()
+    {
+        if (frameBufferShadows == null)
+        {
+            frameBufferShadows = FrameBuffer.createFrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+        }
+        frameBufferShadows.begin();
+
+        Gdx.gl.glClearColor(0.4f, 0.4f, 0.4f, 0.4f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+        modelBatchShadows.begin(camera);
+        for(ModelInstance instance:lstModelInstances) {
+            modelBatchShadows.render(instance);
+        }
+        modelBatchShadows.end();
+
+        frameBufferShadows.end();
+    }
+
+
+    public void act(final float delta)
+    {
+        for (final Light light : lights)
+        {
+            light.act(delta);
+        }
     }
 }

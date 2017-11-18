@@ -18,6 +18,6 @@ void main()
 {
 	// Simple depth calculation, just the length of the vector light-current position
 	gl_FragColor     = vec4(length(v_position.xyz-u_lightPosition)/u_cameraFar);
-
+	
 }
 
