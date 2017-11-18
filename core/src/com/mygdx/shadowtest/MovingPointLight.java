@@ -1,4 +1,4 @@
-package com.mygdx.shadowtest.part4;
+package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
@@ -9,7 +9,7 @@ public class MovingPointLight extends PointLight
 	public float	angle				= 0;
 	public float	distance			= 20f;
 
-	public MovingPointLight(final MainScreen mainScreen, final Vector3 position)
+	public MovingPointLight(final ShadowEngine mainScreen, final Vector3 position)
 	{
 		super(mainScreen, position);
 		originalPosition.set(position);

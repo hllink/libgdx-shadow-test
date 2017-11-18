@@ -1,4 +1,4 @@
-package com.mygdx.shadowtest.part4;
+package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
-import tools.ScreenshotFactory;
 
 
 public class DirectionalLight extends Light
@@ -19,7 +18,7 @@ public class DirectionalLight extends Light
 	public FrameBuffer	frameBuffer;
 	public Texture		depthMap;
 
-	public DirectionalLight(final MainScreen mainScreen, final Vector3 position, final Vector3 direction)
+	public DirectionalLight(final ShadowEngine mainScreen, final Vector3 position, final Vector3 direction)
 	{
 		super(mainScreen);
 		this.position = position;
@@ -44,7 +43,7 @@ public class DirectionalLight extends Light
 	{
 		super.init();
 
-		camera = new PerspectiveCamera(120f, MainScreen.DEPTHMAPSIZE, MainScreen.DEPTHMAPSIZE);
+		camera = new PerspectiveCamera(120f, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE);
 		camera.near = 1f;
 		camera.far = 70;
 		camera.position.set(position);
@@ -63,7 +62,7 @@ public class DirectionalLight extends Light
 
 		if (frameBuffer == null)
 		{
-			frameBuffer = new FrameBuffer(Format.RGBA8888, MainScreen.DEPTHMAPSIZE, MainScreen.DEPTHMAPSIZE, true);
+			frameBuffer = new FrameBuffer(Format.RGBA8888, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE, true);
 		}
 
 		frameBuffer.begin();
@@ -79,10 +78,6 @@ public class DirectionalLight extends Light
 		modelBatch.render(modelInstance);
 		modelBatch.end();
 
-		if (mainScreen.takeScreenshots)
-		{
-			ScreenshotFactory.saveScreenshot(frameBuffer.getWidth(), frameBuffer.getHeight(), "depthmap");
-		}
 		frameBuffer.end();
 		depthMap = frameBuffer.getColorBufferTexture();
 	}

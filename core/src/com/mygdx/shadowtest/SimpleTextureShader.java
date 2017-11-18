@@ -1,4 +1,4 @@
-package tools;
+package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;

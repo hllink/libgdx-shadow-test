@@ -1,4 +1,4 @@
-package com.mygdx.shadowtest.part4;
+package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -21,7 +21,7 @@ public abstract class Light
 	/**
 	 * Associated screen
 	 */
-	public MainScreen			mainScreen;
+	public ShadowEngine mainScreen;
 	/**
 	 * Position of the light
 	 */
@@ -39,7 +39,7 @@ public abstract class Light
 	 */
 	public abstract void act(float delta);
 
-	public Light(final MainScreen mainScreen)
+	public Light(final ShadowEngine mainScreen)
 	{
 		this.mainScreen = mainScreen;
 	}

@@ -1,8 +1,7 @@
-package com.mygdx.shadowtest.part4;
+package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
@@ -20,7 +19,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 public class ShadowMapShader extends BaseShader
 {
 	public Renderable	renderable;
-	public MainScreen	mainScreen;
+	public ShadowEngine mainScreen;
 
 	@Override
 	public void end()
@@ -28,7 +27,7 @@ public class ShadowMapShader extends BaseShader
 		super.end();
 	}
 
-	public ShadowMapShader(final MainScreen mainScreen, final Renderable renderable, final ShaderProgram shaderProgramModelBorder)
+	public ShadowMapShader(final ShadowEngine mainScreen, final Renderable renderable, final ShaderProgram shaderProgramModelBorder)
 	{
 		this.mainScreen = mainScreen;
 		this.renderable = renderable;

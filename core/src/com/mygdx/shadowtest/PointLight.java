@@ -1,4 +1,4 @@
-package com.mygdx.shadowtest.part4;
+package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cubemap;
@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
-import tools.FrameBufferCubeMap;
-import tools.ScreenshotFactory;
 
 
 public class PointLight extends Light
@@ -18,7 +16,7 @@ public class PointLight extends Light
 	public FrameBufferCubeMap frameBuffer;
 	public Cubemap            depthMap;
 
-	public PointLight(final MainScreen mainScreen, final Vector3 position)
+	public PointLight(final ShadowEngine mainScreen, final Vector3 position)
 	{
 		super(mainScreen);
 		this.position = position;
@@ -41,7 +39,7 @@ public class PointLight extends Light
 	{
 		super.init();
 
-		camera = new PerspectiveCamera(90f, MainScreen.DEPTHMAPSIZE, MainScreen.DEPTHMAPSIZE);
+		camera = new PerspectiveCamera(90f, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE);
 		camera.near = 4f;
 		camera.far = 70;
 		camera.position.set(position);
@@ -59,7 +57,7 @@ public class PointLight extends Light
 
 		if (frameBuffer == null)
 		{
-			frameBuffer = new FrameBufferCubeMap(Format.RGBA8888, MainScreen.DEPTHMAPSIZE, MainScreen.DEPTHMAPSIZE, true);
+			frameBuffer = new FrameBufferCubeMap(Format.RGBA8888, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE, true);
 		}
 
 		shaderProgram.begin();
@@ -79,10 +77,6 @@ public class PointLight extends Light
 			modelBatch.render(modelInstance);
 			modelBatch.end();
 
-			if (mainScreen.takeScreenshots)
-			{
-				ScreenshotFactory.saveScreenshot(frameBuffer.getWidth(), frameBuffer.getHeight(), "depthmapcube");
-			}
 
 		}
 
