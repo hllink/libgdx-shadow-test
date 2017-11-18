@@ -1,4 +1,4 @@
-package com.mygdx.shadowtest.shader;
+package tools;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -11,16 +11,13 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Inputs;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Setters;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.mygdx.shadowtest.ShadowTestGame;
 
 /**
- * Shader used to render multiple shadows on the main scene.
- * This shader will render the scene multiple times, adding shadows for one light at a time
+ * Simple shader for an object with a texture
  */
-public class ShadowMapShader extends BaseShader
+public class SimpleTextureShader extends BaseShader
 {
 	public Renderable	renderable;
-	public ShadowTestGame	mainScreen;
 
 	@Override
 	public void end()
@@ -28,14 +25,14 @@ public class ShadowMapShader extends BaseShader
 		super.end();
 	}
 
-	public ShadowMapShader(final ShadowTestGame mainScreen, final Renderable renderable, final ShaderProgram shaderProgramModelBorder)
+	public SimpleTextureShader(final Renderable renderable, final ShaderProgram shaderProgramModelBorder)
 	{
-		this.mainScreen = mainScreen;
 		this.renderable = renderable;
 		this.program = shaderProgramModelBorder;
 		register(Inputs.worldTrans, Setters.worldTrans);
 		register(Inputs.projViewTrans, Setters.projViewTrans);
 		register(Inputs.normalMatrix, Setters.normalMatrix);
+		register(Inputs.diffuseTexture, Setters.diffuseTexture);
 
 	}
 
@@ -86,30 +83,7 @@ public class ShadowMapShader extends BaseShader
 	@Override
 	public void render(final Renderable renderable, final Attributes combinedAttributes)
 	{
-		boolean firstCall = true;
-		for (final Light light : mainScreen.lights)
-		{
-			light.applyToShader(program);
-			if (firstCall)
-			{
-				// Classic depth test 
-				context.setDepthTest(GL20.GL_LEQUAL);
-				// Deactivate blending on first pass
-				context.setBlending(false, GL20.GL_ONE, GL20.GL_ONE);
-				super.render(renderable, combinedAttributes);
-				firstCall = false;
-			}
-			else
-			{
-				// We could use the classic depth test (less or equal), but strict equality works fine on next passes as depth buffer already contains our scene
-				context.setDepthTest(GL20.GL_EQUAL);
-				// Activate additive blending
-				context.setBlending(true, GL20.GL_ONE, GL20.GL_ONE);
-				// Render the mesh again
-				renderable.meshPart.render(program);
-				//renderable.mesh.render(program, renderable.primitiveType, renderable.meshPartOffset, renderable.meshPartSize, false);
-			}
-		}
+		super.render(renderable, combinedAttributes);
 	}
 
 }
