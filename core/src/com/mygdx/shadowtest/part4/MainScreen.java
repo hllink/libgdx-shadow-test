@@ -90,7 +90,8 @@ public class MainScreen extends ApplicationAdapter
 
 		// Load the scene, it is just one big model
 		final G3dModelLoader loader = new G3dModelLoader(new UBJsonReader());
-		final Model model = loader.loadModel(Gdx.files.internal("model/fancy_table.g3db"));
+//		final Model model = loader.loadModel(Gdx.files.internal("model/terrain.g3db"));
+		final Model model = loader.loadModel(Gdx.files.internal("model/scene_f0.g3db"));
 		modelInstance = new ModelInstance(model);
 		modelInstance.transform.setToScaling(4f, 4f, 4f);
 
