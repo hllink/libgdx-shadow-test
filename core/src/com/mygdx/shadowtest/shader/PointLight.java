@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.shadowtest.ShadowTestGame;
@@ -13,8 +12,8 @@ import com.mygdx.shadowtest.ShadowTestGame;
 public class PointLight extends Light
 {
 
-	public FrameBufferCubemap frameBuffer;
-	public Cubemap depthMap;
+	public FrameBufferCubeMap frameBuffer;
+	public Cubemap            depthMap;
 
 	public PointLight(final ShadowTestGame mainScreen, final Vector3 position)
 	{
@@ -57,9 +56,7 @@ public class PointLight extends Light
 
 		if (frameBuffer == null)
 		{
-
-			//GLFrameBuffer.FrameBufferCubemapBuilder cmb= new GLFrameBuffer.FrameBufferCubemapBuilder(ShadowTestGame.DEPTHMAPSIZE, ShadowTestGame.DEPTHMAPSIZE);
-			frameBuffer = FrameBufferCubemap.createFrameBufferCubemap(Format.RGBA8888, ShadowTestGame.DEPTHMAPSIZE, ShadowTestGame.DEPTHMAPSIZE, true);
+			frameBuffer = new FrameBufferCubeMap(Format.RGBA8888, ShadowTestGame.DEPTHMAPSIZE, ShadowTestGame.DEPTHMAPSIZE, true);
 		}
 
 		shaderProgram.begin();
@@ -71,11 +68,7 @@ public class PointLight extends Light
 		{
 			final Cubemap.CubemapSide side = Cubemap.CubemapSide.values()[s];
 			frameBuffer.begin();
-
-			Gdx.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, FrameBufferUtils.bindSide(side, camera).glEnum,
-					frameBuffer.getColorBufferTexture().getTextureObjectHandle(), 0);
-			;
-			frameBuffer.bind();
+			frameBuffer.bindSide(side, camera);
 			Gdx.gl.glClearColor(0, 0, 0, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
@@ -83,10 +76,6 @@ public class PointLight extends Light
 			modelBatch.render(modelInstance);
 			modelBatch.end();
 
-//			if (mainScreen.takeScreenshots)
-//			{
-//				//ScreenshotFactory.saveScreenshot(frameBuffer.getWidth(), frameBuffer.getHeight(), "depthmapcube");
-//			}
 
 		}
 

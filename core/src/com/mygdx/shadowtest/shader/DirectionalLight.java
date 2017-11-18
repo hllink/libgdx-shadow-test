@@ -14,9 +14,9 @@ import com.mygdx.shadowtest.ShadowTestGame;
 public class DirectionalLight extends Light
 {
 
-	public Vector3 direction;
-	public FrameBuffer frameBuffer;
-	public Texture depthMap;
+	public Vector3		direction;
+	public FrameBuffer	frameBuffer;
+	public Texture		depthMap;
 
 	public DirectionalLight(final ShadowTestGame mainScreen, final Vector3 position, final Vector3 direction)
 	{
@@ -62,7 +62,7 @@ public class DirectionalLight extends Light
 
 		if (frameBuffer == null)
 		{
-			frameBuffer =  FrameBuffer.createFrameBuffer(Format.RGBA8888, ShadowTestGame.DEPTHMAPSIZE, ShadowTestGame.DEPTHMAPSIZE, true);
+			frameBuffer = new FrameBuffer(Format.RGBA8888, ShadowTestGame.DEPTHMAPSIZE, ShadowTestGame.DEPTHMAPSIZE, true);
 		}
 
 		frameBuffer.begin();

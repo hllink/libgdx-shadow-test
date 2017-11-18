@@ -2,14 +2,12 @@ package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -19,7 +17,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.UBJsonReader;
 import com.mygdx.shadowtest.shader.*;
 
 import java.util.ArrayList;
@@ -32,7 +29,7 @@ public class ShadowTestGame extends ApplicationAdapter {
 
     private Array<ModelInstance> lstModelInstances;
     private Boolean isWorldCreated = false;
-    private GLProfiler profiler;
+//    private GLProfiler profiler;
 
     private ShaderProgram shaderProgram;
     private ModelBatch modelBatch;
@@ -43,7 +40,7 @@ public class ShadowTestGame extends ApplicationAdapter {
     private ShaderProgram shaderProgramShadows;
     private FrameBuffer frameBufferShadows;
 
-    public ArrayList<Light> lights				= new ArrayList<Light>();
+    public ArrayList<Light> lights = new ArrayList<Light>();
 
     @Override
     public void create() {
@@ -52,28 +49,28 @@ public class ShadowTestGame extends ApplicationAdapter {
         loadModels();
 
 
-        this.profiler = new GLProfiler(Gdx.graphics);
-        this.profiler.enable();
+
+        GLProfiler.enable();
 
 
         initCameras();
         initShaders();
 
-        lights.add(new PointLight(this, new Vector3(0f, 13.8f, 32f)));
-        lights.add(new PointLight(this, new Vector3(-25.5f, 12.0f, -26f)));
-        lights.add(new DirectionalLight(this, new Vector3(33, 10, 3), new Vector3(-10, 0, 0)));
-        lights.add(new MovingPointLight(this, new Vector3(0f, 30.0f, 0f)));
+        lights.add(new PointLight(this, new Vector3(0f, 1.8f, 0f)));
+//        lights.add(new PointLight(this, new Vector3(-25.5f, 12.0f, -26f)));
+//        lights.add(new DirectionalLight(this, new Vector3(33, 10, 3), new Vector3(-10, 0, 0)));
+        //lights.add(new MovingPointLight(this, new Vector3(0f, 30.0f, 0f)));
+        camController = new FirstPersonCameraController(camera);
 
     }
 
-    public void initCameras()
-    {
+    public void initCameras() {
         camera = new PerspectiveCamera(60f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 1f;
         camera.far = 200;
-        camera.position.set(-31, 11, 27);
-        camera.lookAt(0, 11, 0);
+        camera.position.set(0, 1, 0);
+        camera.lookAt(0, 0, 0);
         camera.update();
 
 //		firstPersonCameraController = new IntFirstPersonCameraController(camera);
@@ -82,25 +79,20 @@ public class ShadowTestGame extends ApplicationAdapter {
 
     }
 
-    public void initShaders()
-    {
+    public void initShaders() {
         shaderProgram = setupShader("scene");
-        modelBatch = new ModelBatch(new DefaultShaderProvider()
-        {
+        modelBatch = new ModelBatch(new DefaultShaderProvider() {
             @Override
-            protected Shader createShader(final Renderable renderable)
-            {
+            protected Shader createShader(final Renderable renderable) {
                 return new SimpleTextureShader(renderable, shaderProgram);
             }
         });
 
         final ShadowTestGame self = this;
         shaderProgramShadows = setupShader("shadows");
-        modelBatchShadows = new ModelBatch(new DefaultShaderProvider()
-        {
+        modelBatchShadows = new ModelBatch(new DefaultShaderProvider() {
             @Override
-            protected Shader createShader(final Renderable renderable)
-            {
+            protected Shader createShader(final Renderable renderable) {
                 return new ShadowMapShader(self, renderable, shaderProgramShadows);
             }
         });
@@ -109,6 +101,7 @@ public class ShadowTestGame extends ApplicationAdapter {
     private void loadModels() {
         this.assets.load("model/chair.g3db", Model.class);
         this.assets.load("model/terrain.g3db", Model.class);
+        this.assets.load("model/scene_f0.g3db", Model.class);
     }
 
     public FrameBuffer frameBuffer;
@@ -119,6 +112,10 @@ public class ShadowTestGame extends ApplicationAdapter {
         ModelInstance terrain = new ModelInstance(this.assets.get("model/terrain.g3db", Model.class));
         terrain.transform.setTranslation(Vector3.Zero);
         this.lstModelInstances.add(terrain);
+
+        ModelInstance scene = new ModelInstance(this.assets.get("model/scene_f0.g3db", Model.class));
+        scene.transform.setTranslation(Vector3.Zero);
+        this.lstModelInstances.add(scene);
 
         int generatedInstances = MathUtils.random(10, 150);
         for (int i = 0; i < generatedInstances; i++) {
@@ -138,7 +135,7 @@ public class ShadowTestGame extends ApplicationAdapter {
 
     @Override
     public void render() {
-//        camController.update();
+        camController.update();
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -154,9 +151,8 @@ public class ShadowTestGame extends ApplicationAdapter {
 
 
         act(Gdx.graphics.getDeltaTime());
-        for (final Light light : lights)
-        {
-            for(ModelInstance instance:lstModelInstances) {
+        for (final Light light : lights) {
+            for (ModelInstance instance : lstModelInstances) {
                 light.render(instance);
             }
         }
@@ -165,7 +161,7 @@ public class ShadowTestGame extends ApplicationAdapter {
 
         fpsLogger.log();
         //Gdx.app.log("profiler vertex count",((Float)this.profiler.getVertexCount().total).toString());
-        this.profiler.reset();
+       GLProfiler.reset();
     }
 
     @Override
@@ -175,22 +171,25 @@ public class ShadowTestGame extends ApplicationAdapter {
     }
 
 
-    public ShaderProgram setupShader(final String prefix) {
+    public ShaderProgram setupShader(final String prefix)
+    {
         ShaderProgram.pedantic = false;
-        final ShaderProgram shaderProgram = new ShaderProgram(Gdx.files.internal("shader/" + prefix + "_v.glsl"), Gdx.files.internal("shader/" + "/" + prefix
+        final ShaderProgram shaderProgram = new ShaderProgram(Gdx.files.internal("shader/" + prefix + "_v.glsl"), Gdx.files.internal("shader/" + prefix
                 + "_f.glsl"));
-        if (!shaderProgram.isCompiled()) {
+        if (!shaderProgram.isCompiled())
+        {
             System.err.println("Error with shader " + prefix + ": " + shaderProgram.getLog());
             System.exit(1);
-        } else {
+        }
+        else
+        {
             Gdx.app.log("init", "Shader " + prefix + " compilled " + shaderProgram.getLog());
         }
         return shaderProgram;
     }
 
 
-    public void renderScene()
-    {
+    public void renderScene() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0));
         shaderProgram.begin();
@@ -202,7 +201,7 @@ public class ShadowTestGame extends ApplicationAdapter {
         shaderProgram.end();
 
         modelBatch.begin(camera);
-        for(ModelInstance instance:lstModelInstances) {
+        for (ModelInstance instance : lstModelInstances) {
             modelBatch.render(instance);
         }
         modelBatch.end();
@@ -212,11 +211,9 @@ public class ShadowTestGame extends ApplicationAdapter {
     /**
      * Render the scene shadow map
      */
-    public void renderShadows()
-    {
-        if (frameBufferShadows == null)
-        {
-            frameBufferShadows = FrameBuffer.createFrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+    public void renderShadows() {
+        if (frameBufferShadows == null) {
+            frameBufferShadows = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         }
         frameBufferShadows.begin();
 
@@ -224,7 +221,7 @@ public class ShadowTestGame extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         modelBatchShadows.begin(camera);
-        for(ModelInstance instance:lstModelInstances) {
+        for (ModelInstance instance : lstModelInstances) {
             modelBatchShadows.render(instance);
         }
         modelBatchShadows.end();
@@ -233,11 +230,14 @@ public class ShadowTestGame extends ApplicationAdapter {
     }
 
 
-    public void act(final float delta)
-    {
-        for (final Light light : lights)
-        {
+    public void act(final float delta) {
+
+        for (final Light light : lights) {
+            light.needsUpdate = true;
+
             light.act(delta);
+
+
         }
     }
 }

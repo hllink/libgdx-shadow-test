@@ -19,7 +19,7 @@ import com.mygdx.shadowtest.ShadowTestGame;
  */
 public class ShadowMapShader extends BaseShader
 {
-	public Renderable renderable;
+	public Renderable	renderable;
 	public ShadowTestGame	mainScreen;
 
 	@Override
