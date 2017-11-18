@@ -2,6 +2,7 @@ package com.mygdx.shadowtest.part4;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
@@ -95,6 +96,8 @@ public class ShadowMapShader extends BaseShader
 				context.setDepthTest(GL20.GL_LEQUAL);
 				// Deactivate blending on first pass
 				context.setBlending(false, GL20.GL_ONE, GL20.GL_ONE);
+				//combinedAttributes.remove(Attribute.getAttributeType("shininess"));
+//								combinedAttributes.remove(Attribute.getAttributeType("reflectionColor"));
 				super.render(renderable, combinedAttributes);
 				firstCall = false;
 			}
