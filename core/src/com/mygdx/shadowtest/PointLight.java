@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 
 
 public class PointLight extends Light
@@ -49,7 +50,7 @@ public class PointLight extends Light
 	}
 
 	@Override
-	public void render(final ModelInstance modelInstance)
+	public void render(final Array<ModelInstance> lstModelInstance)
 	{
 		if (!needsUpdate)
 		{
@@ -76,7 +77,7 @@ public class PointLight extends Light
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 			modelBatch.begin(camera);
-			modelBatch.render(modelInstance);
+			modelBatch.render(lstModelInstance);
 			modelBatch.end();
 
 

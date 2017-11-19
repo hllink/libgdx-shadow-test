@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -11,7 +12,6 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -27,17 +27,16 @@ public class ShadowEngine {
     public Array<Light> lights = new Array<Light>();
     public static final int DEPTHMAPSIZE = 1024;
 
-
-
-
+    private SpriteBatch sb;
 
 
     public void init() {
         initShaders();
+        sb = new SpriteBatch();
     }
 
 
-    public void addLight(Light light){
+    public void addLight(Light light) {
         lights.add(light);
     }
 
@@ -66,21 +65,27 @@ public class ShadowEngine {
 
     public void renderLights(Array<ModelInstance> lstModel) {
         for (final Light light : lights) {
-            for (ModelInstance modelInstance : lstModel) {
-                light.render(modelInstance);
-            }
+            light.render(lstModel);
         }
     }
 
-    public void renderLight(ModelInstance modelInstance) {
-        for (final Light light : lights) {
-            light.render(modelInstance);
-        }
+    public void renderAll(Camera camera, Array<ModelInstance> lstModelInstance) {
+        act();
+        renderLights(lstModelInstance);
+
+        beginRenderShadows(camera);
+        getModelBatchShadows().render(lstModelInstance);
+        endRenderShadows();
+
+        beginRenderScene(camera);
+        getModelBatch().render(lstModelInstance);
+        endRenderScene();
+
     }
 
     final int textureNum = 4;
-    public void beginRenderScene(Camera camera) {
 
+    public void beginRenderScene(Camera camera) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0));
         shaderProgram.begin();
@@ -108,14 +113,15 @@ public class ShadowEngine {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         modelBatchShadows.begin(camera);
-
-
     }
 
     public void endRenderShadows() {
         modelBatchShadows.end();
         frameBufferShadows.end();
 
+        sb.begin();
+        sb.draw(frameBufferShadows.getColorBufferTexture(), 0, 0);
+        sb.end();
     }
 
     public void act() {

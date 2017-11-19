@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 
 
 public class DirectionalLight extends Light
@@ -52,7 +53,7 @@ public class DirectionalLight extends Light
 	}
 
 	@Override
-	public void render(final ModelInstance modelInstance)
+	public void render(final Array<ModelInstance> lstModelInstance)
 	{
 		if (!needsUpdate)
 		{
@@ -75,7 +76,7 @@ public class DirectionalLight extends Light
 		shaderProgram.end();
 
 		modelBatch.begin(camera);
-		modelBatch.render(modelInstance);
+		modelBatch.render(lstModelInstance);
 		modelBatch.end();
 
 		frameBuffer.end();

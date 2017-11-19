@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 
 public abstract class Light
 {
@@ -75,6 +76,6 @@ public abstract class Light
 	 * 
 	 * @param modelInstance
 	 */
-	public abstract void render(ModelInstance modelInstance);
+	public abstract void render(Array<ModelInstance> lstModelInstance);
 
 }

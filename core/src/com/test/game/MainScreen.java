@@ -23,15 +23,10 @@ import com.mygdx.shadowtest.ShadowEngine;
  */
 public class MainScreen extends ApplicationAdapter {
 
-
-
     private Array<ModelInstance> lstModel;
     private PerspectiveCamera camera;
     private FirstPersonCameraController firstPersonCameraController;
     private ShadowEngine shadowEngine = new ShadowEngine();
-
-
-
 
     /**
      * Called on start
@@ -86,10 +81,6 @@ public class MainScreen extends ApplicationAdapter {
 
     }
 
-
-
-
-
     /**
      * Render a frame
      */
@@ -97,16 +88,7 @@ public class MainScreen extends ApplicationAdapter {
     public void render() {
         act();
 
-        shadowEngine.act();
-        shadowEngine.renderLights(lstModel);
-
-        shadowEngine.beginRenderShadows(camera);
-        shadowEngine.getModelBatchShadows().render(lstModel);
-        shadowEngine.endRenderShadows();
-
-        shadowEngine.beginRenderScene(camera);
-        shadowEngine.getModelBatch().render(lstModel);
-        shadowEngine.endRenderScene();
+        this.shadowEngine.renderAll(camera, lstModel);
     }
 
     /**
