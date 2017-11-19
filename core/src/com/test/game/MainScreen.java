@@ -59,13 +59,13 @@ public class MainScreen extends ApplicationAdapter {
         lstModel.add(modelInstance);
 
 
-//        for (int i = 0; i < 1; i++) {
-//            final Model myModel = loader.loadModel(Gdx.files.internal("model/test1.g3db"));
-//            ModelInstance myModelInstance = new ModelInstance(myModel);
-////		modelInstance.transform.setToScaling(4f, 4f, 4f);
-//            myModelInstance.transform.translate(MathUtils.random(0,i)+4, MathUtils.random(0,i)+8, MathUtils.random(0,i)+8);
-//            lstModel.add(myModelInstance);
-//        }
+        for (int i = 0; i < 20; i++) {
+            final Model myModel = loader.loadModel(Gdx.files.internal("model/test1.g3db"));
+            ModelInstance myModelInstance = new ModelInstance(myModel);
+//		modelInstance.transform.setToScaling(4f, 4f, 4f);
+            myModelInstance.transform.translate(MathUtils.random(0,i) + MathUtils.random(18), MathUtils.random(0,i)+8, MathUtils.random(0,i) + MathUtils.random(18));
+            lstModel.add(myModelInstance);
+        }
     }
 
     /**

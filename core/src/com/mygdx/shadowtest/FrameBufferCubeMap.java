@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
+import com.badlogic.gdx.graphics.glutils.GLFrameBuffer;
 
 /**
  * This is just a small extension of LibGdx FrameBufferCubemap :
@@ -12,16 +13,17 @@ import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
  */
 public class FrameBufferCubeMap extends FrameBufferCubemap
 {
-	public FrameBufferCubeMap(Pixmap.Format format, int width, int height, boolean hasDepth)
-	{
-		super(format, width, height, hasDepth);
+
+
+	/**
+	 * Creates a GLFrameBuffer from the specifications provided by bufferBuilder
+	 *
+	 * @param bufferBuilder
+	 **/
+	protected FrameBufferCubeMap(GLFrameBufferBuilder<? extends GLFrameBuffer<Cubemap>> bufferBuilder) {
+		super(bufferBuilder);
 	}
-	
-	public FrameBufferCubeMap(Pixmap.Format format, int width, int height, boolean hasDepth, boolean hasStencil)
-	{
-		super(format, width, height, hasDepth, hasStencil);
-	}
-	
+
 	public void bindSide(Cubemap.CubemapSide side)
 	{
 		super.bindSide(side);

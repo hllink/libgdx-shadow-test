@@ -100,7 +100,7 @@ public class ShadowEngine {
 
     public void beginRenderShadows(Camera camera) {
         if (frameBufferShadows == null) {
-            frameBufferShadows = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+            frameBufferShadows = FrameBuffer.createFrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         }
         frameBufferShadows.begin();
 

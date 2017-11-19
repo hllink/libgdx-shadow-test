@@ -1,11 +1,13 @@
 package com.mygdx.shadowtest;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 
@@ -13,7 +15,7 @@ import com.badlogic.gdx.math.Vector3;
 public class PointLight extends Light
 {
 
-	public FrameBufferCubeMap frameBuffer;
+	public FrameBufferCubemap frameBuffer;
 	public Cubemap            depthMap;
 
 	public PointLight(final ShadowEngine mainScreen, final Vector3 position)
@@ -57,7 +59,7 @@ public class PointLight extends Light
 
 		if (frameBuffer == null)
 		{
-			frameBuffer = new FrameBufferCubeMap(Format.RGBA8888, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE, true);
+			frameBuffer = FrameBufferCubemap.createFrameBufferCubemap(Format.RGBA8888, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE, true);
 		}
 
 		shaderProgram.begin();
@@ -69,7 +71,7 @@ public class PointLight extends Light
 		{
 			final Cubemap.CubemapSide side = Cubemap.CubemapSide.values()[s];
 			frameBuffer.begin();
-			frameBuffer.bindSide(side, camera);
+			bindSide(side, camera);
 			Gdx.gl.glClearColor(0, 0, 0, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
@@ -89,5 +91,40 @@ public class PointLight extends Light
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	public void bindSide(Cubemap.CubemapSide side, Camera camera)
+	{
+		switch (side)
+		{
+			case NegativeX:
+				camera.up.set(0, -1, 0);
+				camera.direction.set(-1, 0, 0);
+				break;
+			case NegativeY:
+				camera.up.set(0, 0, -1);
+				camera.direction.set(0, -1, 0);
+				break;
+			case NegativeZ:
+				camera.up.set(0, -1, 0);
+				camera.direction.set(0, 0, -1);
+				break;
+			case PositiveX:
+				camera.up.set(0, -1, 0);
+				camera.direction.set(1, 0, 0);
+				break;
+			case PositiveY:
+				camera.up.set(0, 0, 1);
+				camera.direction.set(0, 1, 0);
+				break;
+			case PositiveZ:
+				camera.up.set(0, -1, 0);
+				camera.direction.set(0, 0, 1);
+				break;
+			default:
+				break;
+		}
+		camera.update();
+		Gdx.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, frameBuffer.getColorBufferTexture().getTextureObjectHandle(), 0);
 	}
 }

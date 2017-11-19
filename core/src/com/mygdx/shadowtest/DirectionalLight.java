@@ -62,7 +62,7 @@ public class DirectionalLight extends Light
 
 		if (frameBuffer == null)
 		{
-			frameBuffer = new FrameBuffer(Format.RGBA8888, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE, true);
+			frameBuffer = FrameBuffer.createFrameBuffer(Format.RGBA8888, ShadowEngine.DEPTHMAPSIZE, ShadowEngine.DEPTHMAPSIZE, true);
 		}
 
 		frameBuffer.begin();
